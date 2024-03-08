@@ -3,11 +3,31 @@ const mongoose = require("mongoose")
 const pup = require("puppeteer");
 const Musica = require("../api/models/musica");
 
-
-
 const MUSICA = []
 
+const urlInfoMusic =[{
+    url: "https://www.elcorteingles.es/cd/musica/pop-rock/2/",
+    kind: "Pop"},
+    {
+    url: "https://www.elcorteingles.es/cd/musica/hard-rock-y-metal/",
+    kind: "Metal"},
+    {
+        url: "https://www.elcorteingles.es/cd/musica/rap-y-hip-hop/",
+        kind: "HipHop"},
+    {
+        url:"https://www.elcorteingles.es/cd/musica/dance-y-electronica/",
+        kind: "Dance"},
+    {
+        url:"https://www.elcorteingles.es/cd/musica/bandas-sonoras/",
+        kind: "Bandas Sonoras"
+    }
+]
+
 const scrap = async () =>{
+    if(MUSICA.length){
+        await Musica.collection.drop()  
+       }
+    for (const info of urlInfoMusic) {
     try {
         const browser = await pup.launch({headless:false})
         const page = await browser.newPage()
@@ -18,16 +38,10 @@ const scrap = async () =>{
        /* dance:  https://www.elcorteingles.es/cd/musica/dance-y-electronica/ 👌 */
        /*bandas sonoras:  https://www.elcorteingles.es/cd/musica/bandas-sonoras/ 👌 */
 
-        await page.goto("https://www.elcorteingles.es/cd/musica/pop-rock/2/")
+        await page.goto(info.url)
         await page.setViewport({width:1080, height:1024})
 
-        //rechazo de cookies
-     /*    const btnCookies = await page.waitForSelector("#onetrust-reject-all-handler")
-        await btnCookies.evaluate(el => el.click())
         
- */
-        
-
         const products = await page.$$(".products_list-item")
         
         for (const product of products) {
@@ -37,7 +51,7 @@ const scrap = async () =>{
                singer: "",
                album: "",
                price: "",
-               kind: "Pop" 
+               kind: info.kind
             }
 
             const image = await product.$(".js_preview_image")
@@ -64,10 +78,7 @@ const scrap = async () =>{
         }
         await mongoose.connect("mongodb+srv://nsr2020:Caribe@cluster0.ufcwhzu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 
-        if(MUSICA.length){
-            await Musica.collection.drop()  
-           }
-
+  
         await Musica.insertMany(MUSICA)
         console.log("Datos agregados correctamente en la BBDD");
 
@@ -78,6 +89,7 @@ const scrap = async () =>{
     } catch (error) {
         console.log(error);
     }
+}
 }
 
 scrap()

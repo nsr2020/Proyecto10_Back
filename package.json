@@ -6,11 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "popSeed": "node ./src/utils/popSeed.js",
-    "metalSeed":"node ./src/utils/metalSeed.js",
-    "hiphopSeed":"node ./src/utils/hiphopSeed.js",
-    "danceSeed" : "node ./src/utils/danceSeed.js",
-    "bsSeed" : "node ./src/utils/bsSeed.js"
+    "musicaSeed" : "node ./src/seed/musicaSeed.js"
   },
   "keywords": [],
   "author": "",

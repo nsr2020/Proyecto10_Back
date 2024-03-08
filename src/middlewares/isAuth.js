@@ -1,22 +1,25 @@
 const User = require("../api/models/users");
 const { verificarLlave } = require("../utils/jwt");
 
-const obtenerUsuarioDesdeToken = async (token) => {
+const obtenerUsuarioDesdeToken = async (req) => {
+    const token = req.headers.authorization;
     const parsedToken = token.replace("Bearer ", "");
     const { id } = verificarLlave(parsedToken);
     const user = await User.findById(id);
     return user;
 };
+const openDoor = (req, user, next) => {
+    user.password = null;
+    req.user = user;
+    next();
+}
 
 const isAuth = async (req, res, next) => {
     try {
-        const token = req.headers.authorization;
-        const user = await obtenerUsuarioDesdeToken(token);
-
+        
+        const user = await obtenerUsuarioDesdeToken(req)
         // Abrir la puerta
-        user.password = null;
-        req.user = user;
-        next();
+        openDoor(req, user, next)
         
     } catch (error) {
         return res.status(400).json("No estás autorizado");
@@ -25,13 +28,10 @@ const isAuth = async (req, res, next) => {
 
 const isAdmin = async (req, res, next) => {
     try {
-        const token = req.headers.authorization;
-        const user = await obtenerUsuarioDesdeToken(token);
+        const user = await obtenerUsuarioDesdeToken(req);
 
         if (user.rol === "admin") {
-            user.password = null;
-            req.user = user;
-            next();
+            openDoor(req, user, next)
         } else {
             return res.status(400).json("Esta acción sólo la pueden realizar los administradores");
         }

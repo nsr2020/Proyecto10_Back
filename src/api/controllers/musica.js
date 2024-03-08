@@ -40,31 +40,34 @@ const getMusicasByPrice = async (req, res, next) =>{
     }
 }
 
-const getMusicasByPriceAndKind = async (req, res, next ) =>{
+const getMusicasByPriceAndKind = async (req, res, next) => {
     try {
         const { kind, price } = req.params;
-       /*  const musicas = await Musica.find({
-            kind,
-            price: { $lte: price }
-        }); */
-        if (!kind && !price) {
-            return res.status(400).json("Al menos uno de los parámetros 'kind' o 'price' debe estar presente.");
-        }
         let query = {};
-        if (kind) {
+ 
+
+        if (!kind && !price) {
+            return res.status(400).json("Al menos uno de los parámetros kind o price debe estar presente");
+        }
+
+        if (!isNaN(kind) && kind > 0) {
+            query.price = { $lte: kind };
+        } else if (kind && !["Pop", "Metal", "HipHop", "Dance", "Bandas Sonoras"].includes(kind)) {
+            return res.status(400).json("El parámetro 'kind' no es válido.");
+        } else {
             query.kind = kind;
         }
+
         if (price) {
-            query.price = {};
-            query.price.$lte = price;
+            query.price = { $lte: price };
         }
-        const musicas = await Musica.find(query)
-        return res.status(200).json(musicas)
+
+        const musicas = await Musica.find(query);
+        return res.status(200).json(musicas);
     } catch (error) {
         return res.status(400).json("Error en la solicitud");
     }
-}
-
+};
 const postMusica = async (req, res, next) =>{
     try {
         const newMusica = new Musica(req.body)
