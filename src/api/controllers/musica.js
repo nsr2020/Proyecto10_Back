@@ -20,25 +20,6 @@ const getMusicaById = async (req, res, next) =>{
         
 }  
 
-const getMusicasByKind = async (req, res, next ) =>{
-    try {
-        const { kind } = req.params;
-        const musicas = await Musica.find({ kind });
-        return res.status(200).json(musicas);
-      } catch (error) {
-        return res.status(400).json("Error en la solicitud");
-      }
-}
-
-const getMusicasByPrice = async (req, res, next) =>{
-    try {
-        const { price } = req.params;
-        const musicas = await Musica.find({ price: { $lte: price } })
-        return res.status(200).json(musicas)
-    } catch (error) {
-        return res.status(400).json("Error en la solicitud");
-    }
-}
 
 const getMusicasByPriceAndKind = async (req, res, next) => {
     try {
@@ -115,5 +96,4 @@ const deleteMusica = async (req, res, next)=> {
 }
 
 
-module.exports = {getMusicas, getMusicaById, getMusicasByKind, getMusicasByPrice, postMusica, updateMusica, deleteMusica
-, getMusicasByPriceAndKind}
+module.exports = {getMusicas, getMusicaById, postMusica, updateMusica, deleteMusica, getMusicasByPriceAndKind}
